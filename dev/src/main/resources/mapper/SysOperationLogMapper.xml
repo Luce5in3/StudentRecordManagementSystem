@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="com.student.archive.entity.SysOperationLog">
         <id column="pk_log" property="pkLog"/>
         <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
         <result column="operation" property="operation"/>
         <result column="module" property="module"/>
         <result column="description" property="description"/>

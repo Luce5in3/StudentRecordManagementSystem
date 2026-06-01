@@ -94,6 +94,7 @@ export const archiveApi = {
   updateCategory: (data: any) => api.put('/archive/category', data),
   deleteCategory: (id: number) => api.delete(`/archive/category/${id}`),
   getFileById: (id: number) => api.get(`/archive/file/${id}`),
+  getFileByPath: (filePath: string) => api.get('/archive/file/by-path', { params: { filePath } }),
   getFilesByStudentId: (studentId: number) => api.get(`/archive/file/student/${studentId}`),
   getFileList: (params: any) => api.get('/archive/file/list', { params }),
   addFile: (data: any) => api.post('/archive/file', data),
@@ -147,4 +148,21 @@ export const awardApi = {
 // ===== 操作日志 =====
 export const operationLogApi = {
   getList: (params: any) => api.get('/operation-log/list', { params }),
+}
+
+// ===== 档案去向 & 调档函 =====
+export const archiveTransferApi = {
+  // 档案去向
+  getDestinationById: (id: number) => api.get(`/archive-transfer/destination/${id}`),
+  getDestinationByStudentId: (studentId: number) => api.get(`/archive-transfer/destination/student/${studentId}`),
+  getDestinationList: (params: any) => api.get('/archive-transfer/destination/list', { params }),
+  saveOrUpdateDestination: (data: any) => api.post('/archive-transfer/destination', data),
+  sendArchive: (id: number, params: any) => api.put(`/archive-transfer/destination/${id}/send`, null, { params }),
+  // 调档函
+  getLetterById: (id: number) => api.get(`/archive-transfer/letter/${id}`),
+  getLettersByStudentId: (studentId: number) => api.get(`/archive-transfer/letter/student/${studentId}`),
+  getLetterList: (params: any) => api.get('/archive-transfer/letter/list', { params }),
+  submitLetter: (data: any) => api.post('/archive-transfer/letter', data),
+  auditLetter: (id: number, params: any) => api.put(`/archive-transfer/letter/${id}/audit`, null, { params }),
+  sendTransferArchive: (id: number, params: any) => api.put(`/archive-transfer/letter/${id}/send`, null, { params }),
 }

@@ -61,7 +61,7 @@
             </router-link>
             <router-link to="/notifications" class="nav-item" active-class="nav-item-active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span>通知查看</span>
+              <span>通知中心</span>
             </router-link>
             <router-link to="/notification-send" class="nav-item" active-class="nav-item-active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -70,6 +70,10 @@
             <router-link to="/operation-logs" class="nav-item" active-class="nav-item-active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
               <span>操作日志</span>
+            </router-link>
+            <router-link to="/archive-transfer" class="nav-item" active-class="nav-item-active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>档案去向</span>
             </router-link>
           </div>
         </template>
@@ -105,6 +109,10 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
               <span>导出审核</span>
             </router-link>
+            <router-link to="/teacher/archive-transfer" class="nav-item" active-class="nav-item-active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>档案去向</span>
+            </router-link>
           </div>
           <div class="nav-section">
             <div class="nav-section-label">消息</div>
@@ -114,7 +122,7 @@
             </router-link>
             <router-link to="/teacher/notifications" class="nav-item" active-class="nav-item-active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              <span>通知查看</span>
+              <span>通知中心</span>
             </router-link>
           </div>
         </template>
@@ -168,6 +176,10 @@
             <router-link to="/student/export" class="nav-item" active-class="nav-item-active">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>档案导出</span>
+            </router-link>
+            <router-link to="/student/transfer" class="nav-item" active-class="nav-item-active">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>调档函申请</span>
             </router-link>
           </div>
           <div class="nav-section">

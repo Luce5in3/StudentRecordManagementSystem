@@ -69,6 +69,11 @@ public class ArchiveController {
         return Result.success(archiveService.getFileById(id));
     }
 
+    @GetMapping("/file/by-path")
+    public Result<ArchiveFile> getFileByPath(@RequestParam("filePath") String filePath) {
+        return Result.success(archiveService.getFileByFilePath(filePath));
+    }
+
     @GetMapping("/file/student/{studentId}")
     public Result<List<ArchiveFile>> getFilesByStudentId(@PathVariable("studentId") Long studentId) {
         return Result.success(archiveService.getFilesByStudentId(studentId));

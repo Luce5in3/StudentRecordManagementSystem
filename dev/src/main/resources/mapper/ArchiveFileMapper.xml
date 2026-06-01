@@ -98,4 +98,8 @@
     <update id="updateFilePath">
         UPDATE archive_file SET file_path = #{filePath} WHERE pk_archive_file = #{pkArchiveFile}
     </update>
+
+    <select id="selectByFilePath" resultMap="BaseResultMap">
+        SELECT * FROM archive_file WHERE file_path = #{filePath} LIMIT 1
+    </select>
 </mapper>

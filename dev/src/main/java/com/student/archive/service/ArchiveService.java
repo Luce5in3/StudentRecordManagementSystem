@@ -21,6 +21,8 @@ public interface ArchiveService {
     // 档案文件管理
     ArchiveFile getFileById(Long pkArchiveFile);
 
+    ArchiveFile getFileByFilePath(String filePath);
+
     List<ArchiveFile> getFilesByStudentId(Long studentId);
 
     PageResult<ArchiveFile> getFileList(int pageNum, int pageSize, Long studentId, Long categoryId, Integer status);

@@ -44,6 +44,7 @@
             <td class="text-caption">{{ formatDate(item.uploadTime) }}</td>
             <td>
               <div class="flex gap-4">
+                <button class="btn btn-subtle btn-sm" @click="openPreview(item)">预览</button>
                 <button v-if="item.status === 0" class="btn btn-primary btn-sm" @click="handleApprove(item)">通过</button>
                 <button v-if="item.status === 0" class="btn btn-danger btn-sm" @click="openReject(item)">驳回</button>
                 <button v-if="item.status !== 0" class="btn btn-subtle btn-sm" @click="viewAuditInfo(item)">审核详情</button>
@@ -86,17 +87,75 @@
 
     <!-- 审核详情弹窗 -->
     <div v-if="showAuditInfo" class="modal-overlay" @click.self="showAuditInfo = false">
-      <div class="modal-content" style="max-width: 420px">
+      <div class="modal-content" style="max-width: 520px">
         <div class="modal-header"><h3 class="modal-title">审核详情</h3><button class="btn-icon" @click="showAuditInfo = false">✕</button></div>
         <div class="modal-body">
           <div class="info-grid">
             <div class="info-item"><span class="info-label">文件名</span><span class="info-value">{{ auditInfoItem?.fileName }}</span></div>
             <div class="info-item"><span class="info-label">审核状态</span><span class="info-value">{{ auditLabel(auditInfoItem?.status) }}</span></div>
             <div class="info-item"><span class="info-label">审核时间</span><span class="info-value">{{ formatDate(auditInfoItem?.auditTime) }}</span></div>
+            <div class="info-item"><span class="info-label">文件大小</span><span class="info-value">{{ formatSize(auditInfoItem?.fileSize) }}</span></div>
             <div class="info-item" style="grid-column:span 2"><span class="info-label">审核意见</span><span class="info-value">{{ auditInfoItem?.auditRemark || '无' }}</span></div>
           </div>
+          <!-- 上传文件预览区 -->
+          <div class="audit-file-section">
+            <div class="audit-file-label">上传文件</div>
+            <div class="audit-file-preview" v-if="auditPreviewLoading">加载中...</div>
+            <div class="audit-file-preview audit-file-error" v-else-if="auditPreviewError">{{ auditPreviewError }}</div>
+            <img v-else-if="auditPreviewKind === 'image' && auditPreviewBlobUrl" :src="auditPreviewBlobUrl" class="audit-thumb" />
+            <iframe v-else-if="auditPreviewKind === 'pdf' && auditPreviewBlobUrl" :src="auditPreviewBlobUrl" class="audit-pdf-embed"></iframe>
+            <div class="audit-file-preview" v-else>
+              <span class="audit-file-icon">📄</span>
+              <span>{{ auditInfoItem?.fileName }}</span>
+            </div>
+            <button class="btn btn-subtle btn-sm" @click="openFullPreviewFromAudit">全屏预览</button>
+          </div>
         </div>
-        <div class="modal-footer"><button class="btn btn-ghost btn-sm" @click="showAuditInfo = false">关闭</button></div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost btn-sm" @click="closeAuditPreview">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 文件预览弹窗 -->
+    <div v-if="showPreviewModal" class="modal-overlay" @click.self="closePreview">
+      <div class="modal-content preview-modal">
+        <div class="modal-header">
+          <h3 class="modal-title">档案预览 · {{ previewItem?.fileName }}</h3>
+          <button class="btn-icon" @click="closePreview">✕</button>
+        </div>
+        <div class="modal-body preview-body">
+          <div class="preview-meta">
+            <span class="meta-item">学生：{{ previewItem?.studentName || '-' }}</span>
+            <span class="meta-item">分类：{{ previewItem?.categoryName || '-' }}</span>
+            <span class="meta-item">大小：{{ formatSize(previewItem?.fileSize) }}</span>
+            <span class="meta-item">状态：<span :class="['badge', auditBadge(previewItem?.status)]">{{ auditLabel(previewItem?.status) }}</span></span>
+            <span class="meta-item" v-if="previewItem?.description">说明：{{ previewItem.description }}</span>
+          </div>
+          <div class="preview-viewer">
+            <div v-if="previewLoading" class="preview-tip">加载中...</div>
+            <div v-else-if="previewError" class="preview-tip preview-error">{{ previewError }}</div>
+            <template v-else-if="previewKind === 'image'">
+              <img :src="previewBlobUrl" :alt="previewItem?.fileName" class="preview-image" />
+            </template>
+            <template v-else-if="previewKind === 'pdf'">
+              <iframe :src="previewBlobUrl" class="preview-iframe"></iframe>
+            </template>
+            <template v-else-if="previewKind === 'text'">
+              <pre class="preview-text">{{ previewText }}</pre>
+            </template>
+            <template v-else>
+              <div class="preview-tip">
+                <p>该文件类型暂不支持在线预览（{{ previewExt || '未知' }}）</p>
+                <button class="btn btn-primary btn-sm" @click="downloadPreview">下载查看</button>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button v-if="previewBlobUrl" class="btn btn-subtle btn-sm" @click="downloadPreview">下载</button>
+          <button class="btn btn-ghost btn-sm" @click="closePreview">关闭</button>
+        </div>
       </div>
     </div>
   </div>
@@ -123,6 +182,22 @@ const rejecting = ref(false)
 
 const showAuditInfo = ref(false)
 const auditInfoItem = ref<any>(null)
+
+// 审核详情中的文件预览
+const auditPreviewLoading = ref(false)
+const auditPreviewError = ref('')
+const auditPreviewKind = ref<'image' | 'pdf' | 'text' | 'other' | ''>('')
+const auditPreviewBlobUrl = ref('')
+
+// 预览弹窗状态
+const showPreviewModal = ref(false)
+const previewItem = ref<any>(null)
+const previewBlobUrl = ref('')
+const previewKind = ref<'image' | 'pdf' | 'text' | 'other' | ''>('')
+const previewExt = ref('')
+const previewText = ref('')
+const previewLoading = ref(false)
+const previewError = ref('')
 
 const totalPages = computed(() => Math.ceil(total.value / pageSize.value) || 1)
 
@@ -196,6 +271,99 @@ async function confirmReject() {
 function viewAuditInfo(item: any) {
   auditInfoItem.value = item
   showAuditInfo.value = true
+  loadAuditPreview(item)
+}
+
+async function loadAuditPreview(item: any) {
+  auditPreviewLoading.value = true
+  auditPreviewError.value = ''
+  auditPreviewBlobUrl.value = ''
+  const ext = getExt(item.fileName)
+  auditPreviewKind.value = kindOf(ext)
+  try {
+    const res: any = await archiveApi.previewFile(item.pkArchiveFile)
+    const blob: Blob = res.data
+    auditPreviewBlobUrl.value = URL.createObjectURL(blob)
+  } catch (e: any) {
+    auditPreviewError.value = e?.message || '加载失败'
+  } finally {
+    auditPreviewLoading.value = false
+  }
+}
+
+function openFullPreviewFromAudit() {
+  if (!auditInfoItem.value) return
+  showAuditInfo.value = false
+  openPreview(auditInfoItem.value)
+}
+
+function closeAuditPreview() {
+  showAuditInfo.value = false
+  if (auditPreviewBlobUrl.value) {
+    URL.revokeObjectURL(auditPreviewBlobUrl.value)
+  }
+  auditPreviewBlobUrl.value = ''
+  auditPreviewError.value = ''
+  auditPreviewLoading.value = false
+  auditInfoItem.value = null
+}
+
+function getExt(name: string): string {
+  if (!name) return ''
+  const idx = name.lastIndexOf('.')
+  return idx >= 0 ? name.substring(idx + 1).toLowerCase() : ''
+}
+
+function kindOf(ext: string): 'image' | 'pdf' | 'text' | 'other' {
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) return 'image'
+  if (ext === 'pdf') return 'pdf'
+  if (['txt', 'log', 'md', 'json', 'csv', 'xml', 'html', 'htm'].includes(ext)) return 'text'
+  return 'other'
+}
+
+async function openPreview(item: any) {
+  previewItem.value = item
+  showPreviewModal.value = true
+  previewLoading.value = true
+  previewError.value = ''
+  previewBlobUrl.value = ''
+  previewText.value = ''
+  const ext = getExt(item.fileName)
+  previewExt.value = ext
+  previewKind.value = kindOf(ext)
+  try {
+    const res: any = await archiveApi.previewFile(item.pkArchiveFile)
+    const blob: Blob = res.data
+    previewBlobUrl.value = URL.createObjectURL(blob)
+    if (previewKind.value === 'text') {
+      previewText.value = await blob.text()
+    }
+  } catch (e: any) {
+    previewError.value = e?.message || '预览加载失败'
+  } finally {
+    previewLoading.value = false
+  }
+}
+
+function closePreview() {
+  showPreviewModal.value = false
+  if (previewBlobUrl.value) {
+    URL.revokeObjectURL(previewBlobUrl.value)
+  }
+  previewBlobUrl.value = ''
+  previewText.value = ''
+  previewItem.value = null
+  previewKind.value = ''
+  previewExt.value = ''
+  previewError.value = ''
+}
+
+function downloadPreview() {
+  if (!previewBlobUrl.value || !previewItem.value) return
+  const a = document.createElement('a')
+  a.href = previewBlobUrl.value
+  a.download = previewItem.value.fileName || 'archive-file'
+  a.click()
 }
 
 onMounted(() => { loadCategories(); loadData() })
@@ -216,4 +384,21 @@ onMounted(() => { loadCategories(); loadData() })
 .info-item { display: flex; flex-direction: column; gap: 2px; }
 .info-label { font-size: 12px; font-weight: 510; color: var(--text-quaternary); }
 .info-value { font-size: 14px; font-weight: 510; color: var(--text-secondary); }
+.preview-modal { max-width: 880px; width: 90vw; }
+.preview-body { display: flex; flex-direction: column; gap: 12px; }
+.preview-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 12px; background: var(--surface-03); border-radius: var(--radius-md); font-size: 12px; color: var(--text-tertiary); }
+.preview-meta .meta-item { display: inline-flex; align-items: center; gap: 4px; }
+.preview-viewer { min-height: 360px; max-height: 65vh; display: flex; align-items: center; justify-content: center; background: var(--surface-02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+.preview-image { max-width: 100%; max-height: 65vh; object-fit: contain; }
+.preview-iframe { width: 100%; height: 65vh; border: 0; background: #fff; }
+.preview-text { width: 100%; max-height: 65vh; overflow: auto; padding: 16px; margin: 0; font-size: 12px; color: var(--text-secondary); white-space: pre-wrap; word-break: break-all; font-family: 'SF Mono', monospace; }
+.preview-tip { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 32px; color: var(--text-tertiary); font-size: 13px; text-align: center; }
+.preview-error { color: var(--status-red, #c53030); }
+.audit-file-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 10px; }
+.audit-file-label { font-size: 12px; font-weight: 510; color: var(--text-quaternary); }
+.audit-file-preview { display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--surface-03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 13px; color: var(--text-tertiary); }
+.audit-file-error { color: var(--status-red, #c53030); }
+.audit-file-icon { font-size: 20px; }
+.audit-thumb { max-width: 100%; max-height: 240px; object-fit: contain; border-radius: var(--radius-sm); background: var(--surface-02); }
+.audit-pdf-embed { width: 100%; height: 320px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: #fff; }
 </style>

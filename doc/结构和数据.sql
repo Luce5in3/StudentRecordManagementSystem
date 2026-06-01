@@ -517,4 +517,62 @@ INSERT INTO `sys_user_role` VALUES (8, 8, 2);
 INSERT INTO `sys_user_role` VALUES (9, 9, 2);
 INSERT INTO `sys_user_role` VALUES (10, 10, 2);
 
+-- ----------------------------
+-- Table structure for archive_destination
+-- ----------------------------
+DROP TABLE IF EXISTS `archive_destination`;
+CREATE TABLE `archive_destination`  (
+  `pk_destination` bigint NOT NULL AUTO_INCREMENT COMMENT '去向ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID → student.pk_student',
+  `destination_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '去向类型：本校/就业单位/研究生院校/其他',
+  `destination_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '去向单位名称',
+  `destination_address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '去向单位地址',
+  `contact_person` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系人',
+  `contact_phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系电话',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '待处理' COMMENT '状态：待处理/已寄出/已签收',
+  `send_time` datetime NULL DEFAULT NULL COMMENT '寄出时间',
+  `send_user_id` bigint NULL DEFAULT NULL COMMENT '寄出操作人ID',
+  `tracking_number` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '快递单号',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`pk_destination`) USING BTREE,
+  INDEX `idx_dest_student`(`student_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '档案去向表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of archive_destination
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for archive_transfer_letter
+-- ----------------------------
+DROP TABLE IF EXISTS `archive_transfer_letter`;
+CREATE TABLE `archive_transfer_letter`  (
+  `pk_letter` bigint NOT NULL AUTO_INCREMENT COMMENT '调档函ID',
+  `student_id` bigint NOT NULL COMMENT '学生ID → student.pk_student',
+  `destination_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '去向类型：就业单位/研究生院校/其他',
+  `destination_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '去向单位名称',
+  `destination_address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '去向单位地址',
+  `contact_person` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系人',
+  `contact_phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '联系电话',
+  `letter_file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '调档函文件路径',
+  `letter_file_id` bigint NULL DEFAULT NULL COMMENT '调档函文件ID → archive_file.pk_archive_file',
+  `reason` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '申请原因/备注',
+  `status` tinyint NULL DEFAULT 0 COMMENT '状态：0-待审核 1-已通过 2-已驳回 3-已寄出',
+  `audit_user_id` bigint NULL DEFAULT NULL COMMENT '审核人ID',
+  `audit_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
+  `audit_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核备注',
+  `send_time` datetime NULL DEFAULT NULL COMMENT '寄出时间',
+  `send_user_id` bigint NULL DEFAULT NULL COMMENT '寄出操作人ID',
+  `tracking_number` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '快递单号',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '申请时间',
+  PRIMARY KEY (`pk_letter`) USING BTREE,
+  INDEX `idx_letter_student`(`student_id` ASC) USING BTREE,
+  INDEX `idx_letter_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '调档函申请表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of archive_transfer_letter
+-- ----------------------------
+
 SET FOREIGN_KEY_CHECKS = 1;

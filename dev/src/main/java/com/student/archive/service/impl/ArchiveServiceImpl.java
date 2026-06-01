@@ -60,6 +60,11 @@ public class ArchiveServiceImpl implements ArchiveService {
     }
 
     @Override
+    public ArchiveFile getFileByFilePath(String filePath) {
+        return archiveFileMapper.selectByFilePath(filePath);
+    }
+
+    @Override
     public List<ArchiveFile> getFilesByStudentId(Long studentId) {
         return archiveFileMapper.selectByStudentId(studentId);
     }

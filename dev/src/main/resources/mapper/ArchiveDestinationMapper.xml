@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.student.archive.mapper.ArchiveDestinationMapper">
+
+    <resultMap id="BaseResultMap" type="com.student.archive.entity.ArchiveDestination">
+        <id column="pk_destination" property="pkDestination"/>
+        <result column="student_id" property="studentId"/>
+        <result column="destination_type" property="destinationType"/>
+        <result column="destination_name" property="destinationName"/>
+        <result column="destination_address" property="destinationAddress"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="status" property="status"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="send_user_id" property="sendUserId"/>
+        <result column="tracking_number" property="trackingNumber"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_no" property="studentNo"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT d.*, s.name AS student_name, s.student_no
+        FROM archive_destination d
+        LEFT JOIN student s ON d.student_id = s.pk_student
+        WHERE d.pk_destination = #{pkDestination}
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT d.*, s.name AS student_name, s.student_no
+        FROM archive_destination d
+        LEFT JOIN student s ON d.student_id = s.pk_student
+        WHERE d.student_id = #{studentId}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT d.*, s.name AS student_name, s.student_no
+        FROM archive_destination d
+        LEFT JOIN student s ON d.student_id = s.pk_student
+        <where>
+            <if test="studentId != null">
+                AND d.student_id = #{studentId}
+            </if>
+            <if test="status != null and status != ''">
+                AND d.status = #{status}
+            </if>
+        </where>
+        ORDER BY d.create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="pkDestination">
+        INSERT INTO archive_destination (student_id, destination_type, destination_name,
+            destination_address, contact_person, contact_phone, status)
+        VALUES (#{studentId}, #{destinationType}, #{destinationName},
+            #{destinationAddress}, #{contactPerson}, #{contactPhone}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE archive_destination
+        SET destination_type = #{destinationType},
+            destination_name = #{destinationName},
+            destination_address = #{destinationAddress},
+            contact_person = #{contactPerson},
+            contact_phone = #{contactPhone}
+        WHERE pk_destination = #{pkDestination}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE archive_destination
+        SET status = #{status},
+            send_user_id = #{sendUserId},
+            tracking_number = #{trackingNumber},
+            send_time = CASE WHEN #{status} = '已寄出' THEN NOW() ELSE send_time END
+        WHERE pk_destination = #{pkDestination}
+    </update>
+
+</mapper>

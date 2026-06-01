@@ -12,6 +12,7 @@ public class SysOperationLog {
 
     private Long pkLog;
     private Long userId;
+    private String userName;
     private String operation;
     private String module;
     private String description;

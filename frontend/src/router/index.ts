@@ -67,8 +67,8 @@ const router = createRouter({
         {
           path: 'notifications',
           name: 'Notifications',
-          component: () => import('../views/NotificationList.vue'),
-          meta: { title: '通知查看', roles: ['admin'] }
+          component: () => import('../views/NotificationCenter.vue'),
+          meta: { title: '通知中心', roles: ['admin'] }
         },
         {
           path: 'notification-send',
@@ -87,6 +87,12 @@ const router = createRouter({
           name: 'OperationLogs',
           component: () => import('../views/OperationLogList.vue'),
           meta: { title: '操作日志', roles: ['admin'] }
+        },
+        {
+          path: 'archive-transfer',
+          name: 'AdminArchiveTransfer',
+          component: () => import('../views/AdminArchiveTransfer.vue'),
+          meta: { title: '档案去向管理', roles: ['admin'] }
         }
       ]
     },
@@ -134,10 +140,16 @@ const router = createRouter({
           meta: { title: '导出申请审核', roles: ['counselor', 'archive_manager'] }
         },
         {
+          path: 'archive-transfer',
+          name: 'TeacherArchiveTransfer',
+          component: () => import('../views/AdminArchiveTransfer.vue'),
+          meta: { title: '档案去向管理', roles: ['counselor', 'archive_manager'] }
+        },
+        {
           path: 'notifications',
           name: 'TeacherNotifications',
-          component: () => import('../views/NotificationList.vue'),
-          meta: { title: '通知查看', roles: ['counselor', 'archive_manager'] }
+          component: () => import('../views/NotificationCenter.vue'),
+          meta: { title: '通知中心', roles: ['counselor', 'archive_manager'] }
         },
         {
           path: 'notification-send',
@@ -215,9 +227,15 @@ const router = createRouter({
           meta: { title: '档案导出', roles: ['student'] }
         },
         {
+          path: 'transfer',
+          name: 'StudentTransfer',
+          component: () => import('../views/student/StudentTransferApply.vue'),
+          meta: { title: '调档函申请', roles: ['student'] }
+        },
+        {
           path: 'notifications',
           name: 'StudentNotifications',
-          component: () => import('../views/NotificationList.vue'),
+          component: () => import('../views/NotificationCenter.vue'),
           meta: { title: '通知中心', roles: ['student'] }
         }
       ]

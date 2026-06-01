@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.student.archive.mapper.ArchiveTransferLetterMapper">
+
+    <resultMap id="BaseResultMap" type="com.student.archive.entity.ArchiveTransferLetter">
+        <id column="pk_letter" property="pkLetter"/>
+        <result column="student_id" property="studentId"/>
+        <result column="destination_type" property="destinationType"/>
+        <result column="destination_name" property="destinationName"/>
+        <result column="destination_address" property="destinationAddress"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="letter_file_path" property="letterFilePath"/>
+        <result column="letter_file_id" property="letterFileId"/>
+        <result column="reason" property="reason"/>
+        <result column="status" property="status"/>
+        <result column="audit_user_id" property="auditUserId"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="audit_remark" property="auditRemark"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="send_user_id" property="sendUserId"/>
+        <result column="tracking_number" property="trackingNumber"/>
+        <result column="create_time" property="createTime"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_no" property="studentNo"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT l.*, s.name AS student_name, s.student_no,
+               COALESCE(l.letter_file_id, af.pk_archive_file) AS letter_file_id
+        FROM archive_transfer_letter l
+        LEFT JOIN student s ON l.student_id = s.pk_student
+        LEFT JOIN archive_file af ON l.letter_file_path = af.file_path
+        WHERE l.pk_letter = #{pkLetter}
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT l.*, s.name AS student_name, s.student_no,
+               COALESCE(l.letter_file_id, af.pk_archive_file) AS letter_file_id
+        FROM archive_transfer_letter l
+        LEFT JOIN student s ON l.student_id = s.pk_student
+        LEFT JOIN archive_file af ON l.letter_file_path = af.file_path
+        WHERE l.student_id = #{studentId}
+        ORDER BY l.create_time DESC
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT l.*, s.name AS student_name, s.student_no,
+               COALESCE(l.letter_file_id, af.pk_archive_file) AS letter_file_id
+        FROM archive_transfer_letter l
+        LEFT JOIN student s ON l.student_id = s.pk_student
+        LEFT JOIN archive_file af ON l.letter_file_path = af.file_path
+        <where>
+            <if test="studentId != null">
+                AND l.student_id = #{studentId}
+            </if>
+            <if test="status != null">
+                AND l.status = #{status}
+            </if>
+        </where>
+        ORDER BY l.create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="pkLetter">
+        INSERT INTO archive_transfer_letter (student_id, destination_type, destination_name,
+            destination_address, contact_person, contact_phone, letter_file_path, letter_file_id, reason)
+        VALUES (#{studentId}, #{destinationType}, #{destinationName},
+            #{destinationAddress}, #{contactPerson}, #{contactPhone}, #{letterFilePath}, #{letterFileId}, #{reason})
+    </insert>
+
+    <update id="updateAudit">
+        UPDATE archive_transfer_letter
+        SET status = #{status},
+            audit_user_id = #{auditUserId},
+            audit_time = NOW(),
+            audit_remark = #{auditRemark}
+        WHERE pk_letter = #{pkLetter}
+    </update>
+
+    <update id="updateSend">
+        UPDATE archive_transfer_letter
+        SET status = 3,
+            send_user_id = #{sendUserId},
+            send_time = NOW(),
+            tracking_number = #{trackingNumber}
+        WHERE pk_letter = #{pkLetter}
+    </update>
+
+</mapper>
